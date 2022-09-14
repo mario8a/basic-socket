@@ -5,15 +5,32 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Servidor con express y socket io</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <h1>Funciona :D</h1>
-  
-  <p id="text"></p>
+  <!-- <div id="circle"></div> -->
 
-  <button id="emit-to-server">Emitir :o</button>
-  <button id="emit-to-last">Saluda al ultimo :o</button>
+  <ul class="room" id="room1"></ul>
+  <ul class="room" id="room2"></ul>
+  <ul class="room" id="room3"></ul>
+
+  <br>
+
+  <button id="sendMessage">Enviar Mensaje</button>
+
+  <button id="connectRoom1">
+    Room 1
+  </button>
+
+  <button id="connectRoom2">
+    Room 2
+  </button>
+
+  <button id="connectRoom3">
+    Room 3
+  </button>
+
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="./js/index.js"></script>

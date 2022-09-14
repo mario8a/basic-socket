@@ -1,78 +1,44 @@
 const socket = io();
 
-// function checkSocketStatus() {
-//   console.log('Estado del socket: ', socket.connected);
-// }
+const connectRoom1 = document.querySelector('#connectRoom1');
+const connectRoom2 = document.querySelector('#connectRoom2');
+const connectRoom3 = document.querySelector('#connectRoom3');
 
-// socket.on("connect", () => {
 
-//   console.log('El socket se ha conectado');
-//   checkSocketStatus();
+// events
 
-// });
-
-// socket.on("disconnect", () => {
-
-//   console.log('El socket se ha desconectado')
-//   checkSocketStatus();
-
-// });
-
-// //Desde la v3 estos ya no jalan
-
-// socket.io.on("reconnection_attempt", () => {
-//   console.log('Intentando reconectar al socket');
-// });
-
-// socket.io.on("reconnect", () => {
-//   console.log('Se ha reconectado al socket');
-// });
-
-// socket.on('connect_error', (error) => {
-//   console.log('No pude coenctarme al socket', error);
-// })
-
-socket.on("mensaje", (data) => {
-  console.log(data);
-  text.textContent = data;
+connectRoom1.addEventListener('click', () => {
+  socket.emit('connect-to-room', 'room1');
 });
 
-const emitToServer = document.querySelector("#emit-to-server");
-emitToServer.addEventListener("click", () => {
-  socket.emit("mensaje-server", "Hola desde el cliente");
+connectRoom2.addEventListener('click', () => {
+  socket.emit('connect-to-room', 'room2');
+});
+
+connectRoom3.addEventListener('click', () => {
+  socket.emit('connect-to-room', 'room3');
 });
 
 
-socket.on("todos", message => {
-  console.log(message);
+// Enviar mensaje
+
+const sendMessage = document.querySelector('#sendMessage');
+
+sendMessage.addEventListener("click", () => {
+  const message = prompt("Escribe un mensaje");
+
+  socket.emit("message", message);
+
 });
 
+// Recibir mensaje
 
-const emitToLast = document.querySelector("#emit-to-last");
+socket.on("send-message", data => {
+  const {room, message} = data;
 
-emitToLast.addEventListener("click", () => {
-  socket.emit("last", "Hola , eres el ultimo");
+  const li = document.createElement("li");
+  li.textContent = message;
+
+  document.querySelector(`#${room}`).append(li);
+
 })
-
-socket.on("saludar", message => {
-  console.log(message, 'desde el servidor');
-})
-
-
-//once off on
-
-socket.on("on", () => {
-  console.log("Se emite varias veces");
-});
-
-
-socket.once("once", () => {
-  console.log("Se mite una vez");
-});
-
-socket.once("once", () => {
-  console.log("Se mite una vez");
-});
-
-// apaga la emison del evento
-socket.off()

@@ -10,53 +10,51 @@ const io = new Server(httpServer);
 
 app.use(express.static(path.join(__dirname, "views")));
 
-const socketsOnline = [];
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 })
 
 io.on('connection', (socket) => {
-  // console.log("Clientes conectados ", io.engine.clientsCount);
-  // console.log("Id del cliente conectado",socket.id);
+  
+  socket.connectedRoom = "";
 
-  // Detecta cuando se desconecta un cliente
-  // socket.on("disconnect", () => {
-  //   console.log("Cliente desconectado", socket.id);
-  // })
+  // socket.on("circle-position", position => {
+  //   socket.broadcast.emit("move-circle", position); // Emite a todos los clientes conectados menos a mi
+  // });
 
+  socket.on("connect-to-room", room => {
 
-  // socket.conn.once("upgrade", () => {
-  //   console.log('Hemos pasado a http long polling a', socket.conn.transport.name);
-  // })
+    socket.leave(socket.connectedRoom);
 
-  socketsOnline.push(socket.id);
-
-  // Emision basica
-  socket.emit("mensaje" ,"Ahora estas conectado :D");
-
-  socket.on("mensaje-server", data => {
-    console.log(data);
-  });
-
-  // emitir a todos los clientes
-  io.emit("todos", socket.id + " Se ha conectado");
-
-  // Elmision a uno solo
-  socket.on("last", message => {
-    const lastSocket = socketsOnline[socketsOnline.length - 1];
-
-    io.to(lastSocket).emit("saludar", message);
+    switch (room) {
+      case "room1":
+        socket.join("room1"); // Si la sala no existe, la crea
+        socket.connectedRoom = "room1";
+        break;
+      case "room2":
+        socket.join("room2"); // Si la sala no existe, la crea
+        socket.connectedRoom = "room2";
+        break;
+      case "room3":
+        socket.join("room3"); // Si la sala no existe, la crea
+        socket.connectedRoom = "room3";
+        break;
+      default:
+        break;
+    }
 
   });
 
-  // on, once, off
-  socket.emit("on","Holi hili");
-  socket.emit("on","Holi hili");
-  socket.emit("once","Holi hili");
-  socket.emit("once","Holi hili");
-  socket.emit("once","Holi hili");
+  socket.on("message", message => {
+    const room = socket.connectedRoom;
 
+    io.to(room).emit("send-message", {
+      message,
+      room
+    });
+
+  });
 
 });
 
