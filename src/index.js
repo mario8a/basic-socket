@@ -10,6 +10,8 @@ const io = new Server(httpServer);
 
 app.use(express.static(path.join(__dirname, "views")));
 
+const socketsOnline = [];
+
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 })
@@ -28,6 +30,8 @@ io.on('connection', (socket) => {
   //   console.log('Hemos pasado a http long polling a', socket.conn.transport.name);
   // })
 
+  socketsOnline.push(socket.id);
+
   // Emision basica
   socket.emit("mensaje" ,"Ahora estas conectado :D");
 
@@ -37,6 +41,23 @@ io.on('connection', (socket) => {
 
   // emitir a todos los clientes
   io.emit("todos", socket.id + " Se ha conectado");
+
+  // Elmision a uno solo
+  socket.on("last", message => {
+    const lastSocket = socketsOnline[socketsOnline.length - 1];
+
+    io.to(lastSocket).emit("saludar", message);
+
+  });
+
+  // on, once, off
+  socket.emit("on","Holi hili");
+  socket.emit("on","Holi hili");
+  socket.emit("once","Holi hili");
+  socket.emit("once","Holi hili");
+  socket.emit("once","Holi hili");
+
+
 });
 
 httpServer.listen(3000);
