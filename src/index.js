@@ -13,49 +13,26 @@ app.use(express.static(path.join(__dirname, "views")));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
-})
+});
 
-io.on('connection', (socket) => {
+const teach = io.of("/teach");
+const students = io.of("/students");
+
+teach.on("connection", socket => {
+  console.log(socket.id, 'Se ha conectado a la sala teach');
+
+  socket.on("send-message", data => {
+    teach.emit("message", data);
+  });
   
-  socket.connectedRoom = "";
+});
 
-  // socket.on("circle-position", position => {
-  //   socket.broadcast.emit("move-circle", position); // Emite a todos los clientes conectados menos a mi
-  // });
+students.on("connection", socket => {
+  console.log(socket.id, 'Se ha conectado a la sala students');
 
-  socket.on("connect-to-room", room => {
-
-    socket.leave(socket.connectedRoom);
-
-    switch (room) {
-      case "room1":
-        socket.join("room1"); // Si la sala no existe, la crea
-        socket.connectedRoom = "room1";
-        break;
-      case "room2":
-        socket.join("room2"); // Si la sala no existe, la crea
-        socket.connectedRoom = "room2";
-        break;
-      case "room3":
-        socket.join("room3"); // Si la sala no existe, la crea
-        socket.connectedRoom = "room3";
-        break;
-      default:
-        break;
-    }
-
+  socket.on("send-message", data => {
+    students.emit("message", data);
   });
-
-  socket.on("message", message => {
-    const room = socket.connectedRoom;
-
-    io.to(room).emit("send-message", {
-      message,
-      room
-    });
-
-  });
-
 });
 
 httpServer.listen(3000);
