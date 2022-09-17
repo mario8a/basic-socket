@@ -1,6 +1,3 @@
-process.env.DEBUG = '*';
-
-
 const express = require("express");
 const path = require("path");
 const { createServer } = require("http");
@@ -16,11 +13,24 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/views/index.html");
 });
 
+// middleware
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+
+    if (token === "hey como ta") {
+        next();
+    } else {
+        const err = new Error("unauthorized");
+        err.data = {
+            details: "No puedes ser autenticado"
+        }
+        next(err);
+    }
+})
+
 io.on("connection", socket => {
 
-    socket.on("circle position", position => {
-        socket.broadcast.emit("move circle", position);
-    });
+    console.log(socket.id);
 
 });
 
