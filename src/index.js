@@ -1,14 +1,21 @@
-process.env.DEBUG = '*';
-
-
 const express = require("express");
 const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const { instrument } = require("@socket.io/admin-ui");
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+    cors: {
+      origin: ["http://admin.socket.io"],
+      credentials: true
+    }
+});
+
+instrument(io, {
+  auth: false
+});
 
 app.use( express.static(path.join(__dirname, "views")) );
 
